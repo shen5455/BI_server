@@ -11,10 +11,14 @@
 
 var app = require('koa')();
 var router = require('koa-router')();
+var cors = require('koa-cors');
+
+
+app.use(cors());
 
 var join = require('path').join;
 var config = {
-  modelPath: join(__dirname, 'models'),
+  // modelPath: join(__dirname, 'models'),
   db: 'test',
   username: 'root',
   password: '123',
@@ -31,13 +35,19 @@ var config = {
 var orm = require('koa-orm')(config);
 app.use(orm.middleware);
 
+
+var User = require('./models/user');
+
 router
   .get('/dd', function *(next) {
     this.body = 'Hello World1111!';
   })
   .get('/users', function *(next) {
-    var raws = yield this.orm().sql.select().from('user').query();
-    this.body = raws;
+    var that = this,
+        t = new User(),
+        raws = yield t.getAllUser(that);
+    that.body = raws;
+    t = null;
   })
   .get('/users/:id', function *(next) {
     this.body = 'Hello World333!';
